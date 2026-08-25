@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07070f" />
   <title>Hustle Hub</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://alwingulla.com/88/tag.min.js"></script>
+  <script src="https://alwingulla.com/88/tag.min.js" data-cfasync="false"></script>
   <style>
     :root {
       --bg: #07070f;
@@ -589,8 +589,9 @@
           <div class="big-ico">🎬</div>
           <h2>Watch & Earn</h2>
           <p>Unlimited rewarded ads. Every completed view pays <b style="color:var(--green)">$0.01 USDT</b>.</p>
-          <button class="btn btn-primary btn-full btn-lg" id="watchBtn" onclick="watchAd()">Watch Ad · +$0.01</button>
-          <p class="tiny">Stay until the reward is confirmed.</p>
+          <button class="btn btn-primary btn-full btn-lg" id="watchBtn" onclick="watchAd('pop')">Watch Ad · +$0.01</button>
+          <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="watchAd('interstitial')">Full-screen ad · +$0.01</button>
+          <p class="tiny">Stay until the reward is confirmed. Popup ads work best inside Telegram.</p>
         </div>
 
         <div class="section-title">Daily Hustle Task <span>resets every 24h</span></div>
@@ -751,7 +752,7 @@
       referralReward: 1.00,
       minWithdraw: 10,
       minReferrals: 5,
-      botUsername: "HustleHub_Bot",
+      botUsername: "CoinQuest_bot",
       dailyTaskUrl: "https://omg10.com/4/11204770",
       storageKey: "hustlehub_v1"
     };
@@ -847,25 +848,41 @@
     }
 
     function startParam() {
-      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) return String(tg.initDataUnsafe.start_param);
-      const q = new URLSearchParams(location.search);
-      return q.get("tgWebAppStartParam") || q.get("startapp") || q.get("start") || "";
+      const found = [];
+      try {
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) found.push(tg.initDataUnsafe.start_param);
+      } catch (e) {}
+      try {
+        const q = new URLSearchParams(location.search);
+        found.push(q.get("tgWebAppStartParam"), q.get("startapp"), q.get("start"));
+        const rawHash = (location.hash || "").replace(/^#/, "");
+        const hq = new URLSearchParams(rawHash);
+        found.push(hq.get("tgWebAppStartParam"), hq.get("startapp"), hq.get("start"));
+        rawHash.split("&").forEach(function (part) {
+          const kv = part.split("=");
+          if (kv[0] === "tgWebAppStartParam" && kv[1]) found.push(decodeURIComponent(kv[1]));
+        });
+      } catch (e) {}
+      for (var i = 0; i < found.length; i++) {
+        if (found[i]) return String(found[i]);
+      }
+      return "";
     }
 
     function handleReferralInbound() {
       const p = startParam();
       if (!p) return;
-      const m = String(p).match(/^ref[_-]?(\d+)$/i);
+      const m = String(p).match(/(?:^|_)ref[_-]?(\d+)$/i) || String(p).match(/^ref[_-]?(\d+)$/i) || String(p).match(/^(\d+)$/);
       if (!m) return;
       const refId = m[1];
-      if (refId === String(user.id)) return;
+      if (!refId || refId === String(user.id)) return;
       if (state.referredBy) return;
       state.referredBy = refId;
       save();
     }
 
     function referralLink() {
-      return "https://t.me/" + CONFIG.botUsername + "?start=ref_" + user.id;
+      return "https://t.me/" + CONFIG.botUsername + "?start=ref_" + user.id + "&startapp=ref_" + user.id;
     }
 
     function credit(amount, source) {
@@ -1076,43 +1093,87 @@
       document.getElementById("views").scrollTop = 0;
       if (id === "leaders") renderLeaders();
       if (id === "withdraw") renderWithdraw();
+      if (id === "games") renderGameGrid();
     }
 
-    function watchAd() {
-      haptic("tap");
-      setOverlay(true);
-      const done = function (ok, msg) {
-        setOverlay(false);
-        if (ok) {
-          state.adsWatched += 1;
-          credit(CONFIG.adReward, "ad");
-          toast("+$0.01 USDT credited");
-        } else {
-          toast(msg || "Ad was not completed.", false);
-        }
-      };
-      const timer = setTimeout(function () {
-        if (typeof show_11643886 !== "function") {
-          done(false, "Ad network is still loading. Try again in a moment.");
-        }
-      }, 12000);
-      try {
-        if (typeof show_11643886 !== "function") {
-          clearTimeout(timer);
-          done(false, "Ad SDK not ready. Open this Mini App on Telegram with network access.");
+    function rewardAdView() {
+      state.adsWatched += 1;
+      credit(CONFIG.adReward, "ad");
+      toast("+$0.01 USDT credited");
+    }
+
+    function loadAdSdk() {
+      return new Promise(function (resolve) {
+        if (typeof show_11643886 === "function") {
+          resolve(true);
           return;
         }
-        show_11643886().then(function () {
-          clearTimeout(timer);
-          done(true);
+        var s = document.createElement("script");
+        s.src = "https://alwingulla.com/88/tag.min.js";
+        s.setAttribute("data-cfasync", "false");
+        s.async = true;
+        var settled = false;
+        function done(ok) {
+          if (settled) return;
+          settled = true;
+          resolve(!!ok && typeof show_11643886 === "function");
+        }
+        s.onload = function () { done(true); };
+        s.onerror = function () { done(false); };
+        document.head.appendChild(s);
+        setTimeout(function () { done(typeof show_11643886 === "function"); }, 4000);
+      });
+    }
+
+    function showRewarded(format) {
+      if (typeof show_11643886 !== "function") return Promise.reject(new Error("sdk"));
+      if (format === "interstitial") return show_11643886();
+      return show_11643886("pop");
+    }
+
+    function watchAd(format) {
+      haptic("tap");
+      format = format || "pop";
+      setOverlay(true);
+      loadAdSdk().then(function (ok) {
+        setOverlay(false);
+        if (!ok) {
+          toast("Ad is not available yet. Try again in a moment.", false);
+          return;
+        }
+        var run = showRewarded(format);
+        run.then(function () {
+          rewardAdView();
         }).catch(function () {
-          clearTimeout(timer);
-          done(false, "Ad closed before the reward. Watch until the end.");
+          if (format === "pop") {
+            show_11643886().then(function () {
+              rewardAdView();
+            }).catch(function () {
+              toast("Ad was not completed. Watch until the end.", false);
+            });
+          } else {
+            toast("Ad was not completed. Watch until the end.", false);
+          }
         });
-      } catch (e) {
-        clearTimeout(timer);
-        done(false, "Could not start the ad.");
-      }
+      });
+    }
+
+    function startInAppAds() {
+      loadAdSdk().then(function (ok) {
+        if (!ok || typeof show_11643886 !== "function") return;
+        try {
+          show_11643886({
+            type: "inApp",
+            inAppSettings: {
+              frequency: 2,
+              capping: 0.1,
+              interval: 30,
+              timeout: 5,
+              everyPage: false
+            }
+          });
+        } catch (e) {}
+      });
     }
 
     function claimDaily() {
@@ -1147,7 +1208,7 @@
       const link = referralLink();
       const text = "Join me on Hustle Hub and earn USDT. Use my link: " + link;
       if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join me on Hustle Hub and earn USDT 💸"));
+        tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join me on Hustle Hub via @CoinQuest_bot and earn USDT"));
         return;
       }
       window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text), "_blank");
@@ -1478,6 +1539,5 @@
     tickCountdown();
     setInterval(tickCountdown, 1000);
   </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a30ce3826f4fee67',t:'MTc4NzY4NDk0MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
