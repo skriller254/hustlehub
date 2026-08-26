@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07070f" />
   <title>Hustle Hub</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://alwingulla.com/88/tag.min.js" data-cfasync="false"></script>
+  <script src="https://libtl.com/sdk.js" data-zone="11643886" data-sdk="show_11643886" data-cfasync="false"></script>
   <style>
     :root {
       --bg: #07070f;
@@ -511,6 +511,60 @@
       font-size: 11px; padding: 4px 8px; border-radius: 999px;
       background: rgba(255,255,255,0.06); border: 1px solid var(--border);
     }
+    .offer { padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; cursor: pointer; }
+    .offer .go { margin-left: auto; white-space: nowrap; }
+    .wd-marquee {
+      overflow: hidden; white-space: nowrap; margin-bottom: 14px;
+      padding: 11px 0; border-radius: 14px;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    }
+    .wd-track {
+      display: inline-flex; gap: 28px; align-items: center;
+      animation: marq 72s linear infinite;
+      will-change: transform;
+    }
+    .wd-track span { font-size: 12px; color: var(--muted); }
+    .wd-track b { color: var(--green); }
+    @keyframes marq {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .dice-face {
+      width: 92px; height: 92px; margin: 16px auto; border-radius: 18px;
+      display: grid; place-items: center; font-size: 42px; font-weight: 800;
+      background: linear-gradient(135deg, #fff, #e2e8f0); color: #0f172a;
+    }
+    .slots { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+    .slot {
+      width: 70px; height: 86px; border-radius: 16px;
+      display: grid; place-items: center; font-size: 34px;
+      background: rgba(0,0,0,0.35); border: 1px solid var(--border);
+    }
+    .chests { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 14px 0; }
+    .chest {
+      padding: 18px 8px; text-align: center; border-radius: 16px; cursor: pointer;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border); font-size: 32px;
+    }
+    .hilo-card {
+      width: 110px; height: 150px; margin: 12px auto; border-radius: 16px;
+      display: grid; place-items: center; font-size: 42px; font-weight: 800;
+      background: linear-gradient(180deg, #f8fafc, #cbd5e1); color: #0f172a;
+    }
+    .react-box {
+      height: 180px; border-radius: 20px; margin: 12px 0; cursor: pointer;
+      display: grid; place-items: center; font-weight: 800; font-size: 18px;
+      background: #1e293b; border: 1px solid var(--border);
+    }
+    .react-box.wait { background: #b45309; }
+    .react-box.go { background: #16a34a; }
+    .ring {
+      width: 72px; height: 72px; margin: 8px auto 10px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: conic-gradient(var(--cyan) var(--p, 0%), rgba(255,255,255,0.08) 0);
+    }
+    .ring i { width: 56px; height: 56px; border-radius: 50%; background: #0d0d18; display: grid; place-items: center; font-weight: 800; font-size: 16px; font-style: normal; }
+    .overlay.watch { z-index: 30; background: rgba(5,5,12,0.55); }
   </style>
 </head>
 <body>
@@ -548,6 +602,8 @@
           <div class="glass stat"><div class="n n-green" id="statEarned">$0.00</div><div class="l">Total earned</div></div>
         </div>
 
+        <div class="glass wd-marquee"><div class="wd-track" id="wdMarquee"></div></div>
+
         <div class="section-title">Daily Hustle Task</div>
         <div class="glass task-card" id="homeDaily" onclick="claimDaily()">
           <div class="task-ico">⚡</div>
@@ -563,7 +619,7 @@
           <div class="glass quick" onclick="go('earn')">
             <div class="task-ico">📺</div>
             <h3>Watch ads</h3>
-            <p>Unlimited · $0.01 each</p>
+            <p>15s watch · from $0.01</p>
           </div>
           <div class="glass quick" onclick="go('friends')">
             <div class="task-ico">👥</div>
@@ -578,7 +634,7 @@
           <div class="glass quick" onclick="go('withdraw')">
             <div class="task-ico">💳</div>
             <h3>Cash out</h3>
-            <p>Min $10 · 5 friends</p>
+            <p>Min $10 · 100 ads · 5 friends</p>
           </div>
         </div>
       </section>
@@ -588,11 +644,34 @@
         <div class="glass ad-card">
           <div class="big-ico">🎬</div>
           <h2>Watch & Earn</h2>
-          <p>Unlimited rewarded ads. Every completed view pays <b style="color:var(--green)">$0.01 USDT</b>.</p>
-          <button class="btn btn-primary btn-full btn-lg" id="watchBtn" onclick="watchAd('pop')">Watch Ad · +$0.01</button>
-          <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="watchAd('interstitial')">Full-screen ad · +$0.01</button>
-          <p class="tiny">Stay until the reward is confirmed. Popup ads work best inside Telegram.</p>
+          <p>Pick an offer. Stay on the ad for <b style="color:var(--cyan)">15 seconds</b> to unlock the payout.</p>
         </div>
+        <div class="glass offer" onclick="watchAd('pop', 0.01)">
+          <div class="task-ico">▶</div>
+          <div class="task-body"><h3>Quick ad</h3><p>Watch 15 seconds</p></div>
+          <span class="reward-chip go">+$0.01</span>
+        </div>
+        <div class="glass offer" onclick="watchAd('', 0.02)">
+          <div class="task-ico">🖥</div>
+          <div class="task-body"><h3>Standard ad</h3><p>Watch 15 seconds</p></div>
+          <span class="reward-chip go">+$0.02</span>
+        </div>
+        <div class="glass offer" onclick="watchAd('pop', 0.05)">
+          <div class="task-ico">⭐</div>
+          <div class="task-body"><h3>Bonus ad</h3><p>Watch 15 seconds</p></div>
+          <span class="reward-chip go">+$0.05</span>
+        </div>
+        <div class="glass offer" onclick="watchAd('', 0.10)">
+          <div class="task-ico">💎</div>
+          <div class="task-body"><h3>Premium ad</h3><p>Watch 15 seconds</p></div>
+          <span class="reward-chip go">+$0.10</span>
+        </div>
+        <div class="glass offer" onclick="openDirectLink(0.03)">
+          <div class="task-ico">🔗</div>
+          <div class="task-body"><h3>Direct link</h3><p>Open the offer page</p></div>
+          <span class="reward-chip go">+$0.03</span>
+        </div>
+        <p class="tiny" style="margin-bottom:12px">Closing early cancels the reward. Stay for the full 15 seconds to get paid.</p>
 
         <div class="section-title">Daily Hustle Task <span>resets every 24h</span></div>
         <div class="glass task-card" onclick="claimDaily()">
@@ -625,9 +704,9 @@
             <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-green" id="gameBal">$0.00</div><div class="l">Balance</div></div>
           </div>
         </div>
-        <div class="section-title">Play to earn <span>daily limits apply</span></div>
+        <div class="section-title">Play to earn <span>open the offer for extra plays</span></div>
         <div class="game-grid" id="gameGrid"></div>
-        <p class="tiny">Rewards credit instantly to your USDT balance. Come back when cooldowns reset.</p>
+        <p class="tiny">When plays run out, open the offer and stay 30 seconds to continue.</p>
       </section>
 
       <!-- FRIENDS -->
@@ -658,7 +737,7 @@
             <li>Copy or share your unique link.</li>
             <li>Friends open Hustle Hub via Telegram.</li>
             <li>You receive <b style="color:var(--green)">$1.00 USDT</b> per successful join.</li>
-            <li>Invite 5 friends to unlock withdrawals.</li>
+            <li>Invite 5 friends and watch 100 ads to unlock withdrawals.</li>
           </ol>
         </div>
       </section>
@@ -668,22 +747,18 @@
         <div class="glass" style="padding:16px;margin-bottom:12px">
           <div class="balance-label">Withdrawable</div>
           <div class="balance-amt" id="wdBalance">$0.00 <span>USDT</span></div>
-          <p class="tiny">Minimum $10.00 USDT · at least 5 invited friends required.</p>
+          <p class="tiny">Payouts are USDT only. Min $10.00 · 100 ads watched · 5 friends.</p>
         </div>
 
         <div class="glass" style="padding:16px;margin-bottom:12px">
           <h3 style="font-size:14px">Unlock checklist</h3>
           <ul class="checklist" id="wdCheck"></ul>
 
-          <label class="field">Payout method</label>
-          <select class="field" id="wdMethod">
-            <option value="TRC20">USDT · TRC20 (Tron)</option>
-            <option value="PayPal">PayPal</option>
-            <option value="Crypto">Other crypto wallet</option>
-          </select>
+          <label class="field">Network</label>
+          <input class="field" id="wdMethod" value="USDT TRC20" readonly />
 
-          <label class="field">Wallet / PayPal address</label>
-          <input class="field" id="wdAddress" placeholder="T... or email" autocomplete="off" />
+          <label class="field">USDT (TRC20) wallet address</label>
+          <input class="field" id="wdAddress" placeholder="T...." autocomplete="off" />
 
           <label class="field">Amount (USDT)</label>
           <input class="field" id="wdAmount" type="number" min="10" step="0.01" placeholder="10.00" />
@@ -736,11 +811,20 @@
     </nav>
   </div>
 
+  <div class="play-sheet" id="playSheet">
+    <div class="play-head">
+      <button class="icon-btn" onclick="closeGame()" aria-label="Back">‹</button>
+      <h2 id="playTitle">Game</h2>
+      <span style="width:40px"></span>
+    </div>
+    <div class="play-body" id="playBody"></div>
+  </div>
   <div class="overlay" id="overlay">
     <div class="glass loader-card">
-      <div class="spinner"></div>
-      <h3>Loading ad…</h3>
-      <p class="tiny">Please wait. Reward is credited after a successful view.</p>
+      <div class="spinner" id="ovSpin"></div>
+      <div class="ring" id="ovRing" style="display:none"><i id="ovSec">15</i></div>
+      <h3 id="ovTitle">Loading ad…</h3>
+      <p class="tiny" id="ovHint">Please wait. Stay for 15 seconds to earn.</p>
     </div>
   </div>
   <div class="toast" id="toast"></div>
@@ -752,8 +836,14 @@
       referralReward: 1.00,
       minWithdraw: 10,
       minReferrals: 5,
-      botUsername: "CoinQuest_bot",
+      minAds: 100,
+      botUsername: "CoinsQuest_bot",
       dailyTaskUrl: "https://omg10.com/4/11204770",
+      directLink: "https://omg10.com/4/11204770",
+      zone: "11643886",
+      sdkSrc: "https://libtl.com/sdk.js",
+      watchSecs: 15,
+      unlockSecs: 30,
       storageKey: "hustlehub_v1"
     };
 
@@ -827,7 +917,8 @@
         tapsDate: "",
         tapsUsed: 0,
         memDate: "",
-        memUsed: 0
+        memUsed: 0,
+        gameExtra: {}
       };
     }
 
@@ -881,8 +972,20 @@
       save();
     }
 
+    function referralId() {
+      var id = "";
+      try {
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+          id = String(tg.initDataUnsafe.user.id);
+        }
+      } catch (e) {}
+      if (!id) id = String(user.id || state.userId || "");
+      return id;
+    }
+
     function referralLink() {
-      return "https://t.me/" + CONFIG.botUsername + "?start=ref_" + user.id + "&startapp=ref_" + user.id;
+      var id = referralId();
+      return "https://t.me/CoinsQuest_bot?start=ref_" + id + "&startapp=ref_" + id;
     }
 
     function credit(amount, source) {
@@ -915,7 +1018,9 @@
     }
 
     function canWithdraw() {
-      return state.balance >= CONFIG.minWithdraw && state.referrals >= CONFIG.minReferrals;
+      return state.balance >= CONFIG.minWithdraw
+        && state.referrals >= CONFIG.minReferrals
+        && (state.adsWatched || 0) >= CONFIG.minAds;
     }
 
     function initials(name) {
@@ -976,8 +1081,10 @@
     function renderWithdraw() {
       const balOk = state.balance >= CONFIG.minWithdraw;
       const refOk = state.referrals >= CONFIG.minReferrals;
+      const adsOk = (state.adsWatched || 0) >= CONFIG.minAds;
       const items = [
-        { ok: balOk, t: "Balance at least " + money(CONFIG.minWithdraw) + " (you have " + money(state.balance) + ")" },
+        { ok: balOk, t: "Balance at least " + money(CONFIG.minWithdraw) + " USDT (you have " + money(state.balance) + ")" },
+        { ok: adsOk, t: "Watch at least " + CONFIG.minAds + " ads (you have " + (state.adsWatched || 0) + ")" },
         { ok: refOk, t: "Invite at least " + CONFIG.minReferrals + " friends (you have " + state.referrals + ")" }
       ];
       document.getElementById("wdCheck").innerHTML = items.map(function (i) {
@@ -987,7 +1094,7 @@
       btn.disabled = !canWithdraw();
       document.getElementById("wdNote").textContent = canWithdraw()
         ? "Requests are stored on this device. Connect a backend to process on-chain payouts."
-        : "Withdrawals stay locked until both checklist items are complete.";
+        : "Withdrawals stay locked until all checklist items are complete. Payouts are USDT only.";
 
       const hist = state.withdrawals || [];
       const box = document.getElementById("wdHist");
@@ -1080,6 +1187,7 @@
       renderBalance();
       renderWithdraw();
       renderLeaders();
+      renderMarquee();
     }
 
     function go(id) {
@@ -1096,85 +1204,243 @@
       if (id === "games") renderGameGrid();
     }
 
-    function rewardAdView() {
-      state.adsWatched += 1;
-      credit(CONFIG.adReward, "ad");
-      toast("+$0.01 USDT credited");
+    function adFn() {
+      return window.show_11643886;
     }
 
     function loadAdSdk() {
       return new Promise(function (resolve) {
-        if (typeof show_11643886 === "function") {
-          resolve(true);
-          return;
-        }
+        if (typeof adFn() === "function") { resolve(true); return; }
         var s = document.createElement("script");
-        s.src = "https://alwingulla.com/88/tag.min.js";
+        s.src = CONFIG.sdkSrc;
+        s.setAttribute("data-zone", CONFIG.zone);
+        s.setAttribute("data-sdk", "show_" + CONFIG.zone);
         s.setAttribute("data-cfasync", "false");
         s.async = true;
-        var settled = false;
-        function done(ok) {
-          if (settled) return;
-          settled = true;
-          resolve(!!ok && typeof show_11643886 === "function");
-        }
-        s.onload = function () { done(true); };
-        s.onerror = function () { done(false); };
         document.head.appendChild(s);
-        setTimeout(function () { done(typeof show_11643886 === "function"); }, 4000);
+        var n = 0;
+        var t = setInterval(function () {
+          n += 1;
+          if (typeof adFn() === "function") { clearInterval(t); resolve(true); }
+          else if (n >= 40) { clearInterval(t); resolve(typeof adFn() === "function"); }
+        }, 250);
       });
     }
 
     function showRewarded(format) {
-      if (typeof show_11643886 !== "function") return Promise.reject(new Error("sdk"));
-      if (format === "interstitial") return show_11643886();
-      return show_11643886("pop");
+      var fn = adFn();
+      if (typeof fn !== "function") return Promise.reject(new Error("sdk"));
+      if (format === "pop") return fn("pop");
+      return fn();
     }
 
-    function watchAd(format) {
+    var watchJob = null;
+
+    function stopWatchUi() {
+      if (watchJob && watchJob.tick) clearInterval(watchJob.tick);
+      watchJob = null;
+      var ov = document.getElementById("overlay");
+      ov.classList.remove("show", "watch");
+      document.getElementById("ovSpin").style.display = "";
+      document.getElementById("ovRing").style.display = "none";
+    }
+
+    function setWatchUi(title, hint, left, total) {
+      var ov = document.getElementById("overlay");
+      ov.classList.add("show");
+      document.getElementById("ovTitle").textContent = title;
+      document.getElementById("ovHint").textContent = hint;
+      if (left == null) {
+        document.getElementById("ovSpin").style.display = "";
+        document.getElementById("ovRing").style.display = "none";
+        ov.classList.remove("watch");
+      } else {
+        document.getElementById("ovSpin").style.display = "none";
+        document.getElementById("ovRing").style.display = "";
+        document.getElementById("ovSec").textContent = String(left);
+        var tot = total || CONFIG.watchSecs || 15;
+        var p = Math.max(0, Math.min(100, ((tot - left) / tot) * 100));
+        document.getElementById("ovRing").style.setProperty("--p", p + "%");
+      }
+    }
+
+    function extraOf(id) {
+      state.gameExtra = state.gameExtra || {};
+      return state.gameExtra[id] || 0;
+    }
+    function addExtra(id, n) {
+      state.gameExtra = state.gameExtra || {};
+      state.gameExtra[id] = extraOf(id) + (n || 1);
+      save();
+    }
+    function takeExtra(id) {
+      if (extraOf(id) <= 0) return false;
+      state.gameExtra[id] = extraOf(id) - 1;
+      save();
+      return true;
+    }
+    var EXTRA_GRANT = { wheel: 1, tap: 3, flip: 3, memory: 2, scratch: 1 };
+    var linkUnlock = null;
+
+    function unlockHtml(gid) {
+      return '<button class="btn btn-primary btn-full btn-lg" onclick="unlockGameWithLink(\'' + gid + '\')">Open offer to keep playing</button><p class="tiny" style="text-align:center">Stay on that page for 30 seconds to unlock extra plays.</p>';
+    }
+
+    function unlockGameWithLink(gid) {
+      if (linkUnlock || watchJob) return;
+      var url = CONFIG.directLink || "https://omg10.com/4/11204770";
+      try {
+        if (tg && tg.openLink) tg.openLink(url);
+        else window.open(url, "_blank", "noopener,noreferrer");
+      } catch (e) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+      var need = (CONFIG.unlockSecs || 30) * 1000;
+      var away = 0;
+      var last = Date.now();
+      var startedAt = Date.now();
+      var sawHidden = false;
+      var done = false;
+      linkUnlock = { gid: gid };
+      document.getElementById("overlay").classList.add("show", "watch");
+      setWatchUi("Stay on the offer page", "Keep it open for 30 seconds to continue playing", 30, 30);
+
+      function hiddenNow() {
+        return document.hidden || document.visibilityState === "hidden";
+      }
+      function finishUnlock() {
+        if (done) return;
+        done = true;
+        clearInterval(linkUnlock.tick);
+        document.removeEventListener("visibilitychange", onVis);
+        var g = linkUnlock.gid;
+        linkUnlock = null;
+        stopWatchUi();
+        addExtra(g, EXTRA_GRANT[g] || 1);
+        toast("Extra plays unlocked");
+        if (document.getElementById("playSheet").classList.contains("show")) openGame(g);
+        else renderGameGrid();
+      }
+      function tick() {
+        var now = Date.now();
+        var dt = now - last;
+        last = now;
+        var hid = hiddenNow();
+        if (hid) {
+          sawHidden = true;
+          away += dt;
+        } else if (!sawHidden && now - startedAt > 2500) {
+          away += dt;
+        }
+        var left = Math.ceil((need - away) / 1000);
+        if (left < 0) left = 0;
+        if (hid || (!sawHidden && now - startedAt > 2500)) {
+          setWatchUi("Stay on the offer page", "Do not close it until the timer ends", left, 30);
+        } else {
+          setWatchUi("Go back to the offer", left + "s left — stay on that page to continue", left, 30);
+        }
+        if (away >= need) finishUnlock();
+      }
+      function onVis() { last = Date.now(); }
+      document.addEventListener("visibilitychange", onVis);
+      linkUnlock.tick = setInterval(tick, 200);
+    }
+
+    function rewardAdView(amount) {
+      amount = Number(amount) || CONFIG.adReward;
+      state.adsWatched += 1;
+      credit(amount, "ad");
+      toast("+" + money(amount) + " USDT credited");
+    }
+
+    function beginWatch(amount, onDone) {
+      if (watchJob) return;
+      var need = CONFIG.watchSecs * 1000;
+      var started = Date.now();
+      var adOk = false;
+      var paid = false;
+      watchJob = { amount: amount };
+      function maybePay() {
+        if (paid || !watchJob) return;
+        if (adOk && Date.now() - started >= need) {
+          paid = true;
+          stopWatchUi();
+          rewardAdView(amount);
+        }
+      }
+      watchJob.tick = setInterval(function () {
+        var left = Math.ceil((need - (Date.now() - started)) / 1000);
+        if (left < 0) left = 0;
+        if (adOk) setWatchUi("Almost there", "Stay until 15s is up to claim " + money(amount), left);
+        if (left <= 0) maybePay();
+      }, 200);
+      watchJob.markAd = function () {
+        adOk = true;
+        maybePay();
+      };
+      watchJob.fail = function (msg) {
+        if (paid) return;
+        stopWatchUi();
+        toast(msg || "Ad was not completed. Watch 15 seconds.", false);
+      };
+      if (onDone) onDone(watchJob);
+    }
+
+    function watchAd(format, amount) {
       haptic("tap");
-      format = format || "pop";
-      setOverlay(true);
+      if (watchJob) return;
+      amount = amount || CONFIG.adReward;
+      format = format || "";
+      setWatchUi("Opening ad…", "Watch the full 15 seconds to earn " + money(amount), null);
       loadAdSdk().then(function (ok) {
-        setOverlay(false);
         if (!ok) {
-          toast("Ad is not available yet. Try again in a moment.", false);
+          document.getElementById("overlay").classList.remove("show");
+          toast("SDK still loading. Use Direct link, or try again.", false);
           return;
         }
-        var run = showRewarded(format);
+        document.getElementById("overlay").classList.remove("show");
+        beginWatch(amount);
+        var run = showRewarded(format === "pop" ? "pop" : "");
         run.then(function () {
-          rewardAdView();
+          if (watchJob) {
+            document.getElementById("overlay").classList.add("show", "watch");
+            watchJob.markAd();
+          }
         }).catch(function () {
           if (format === "pop") {
-            show_11643886().then(function () {
-              rewardAdView();
+            showRewarded("").then(function () {
+              if (watchJob) {
+                document.getElementById("overlay").classList.add("show", "watch");
+                watchJob.markAd();
+              }
             }).catch(function () {
-              toast("Ad was not completed. Watch until the end.", false);
+              if (watchJob) watchJob.fail("Ad closed too early. Watch 15 seconds.");
             });
-          } else {
-            toast("Ad was not completed. Watch until the end.", false);
+          } else if (watchJob) {
+            watchJob.fail("Ad closed too early. Watch 15 seconds.");
           }
         });
       });
     }
 
-    function startInAppAds() {
-      loadAdSdk().then(function (ok) {
-        if (!ok || typeof show_11643886 !== "function") return;
-        try {
-          show_11643886({
-            type: "inApp",
-            inAppSettings: {
-              frequency: 2,
-              capping: 0.1,
-              interval: 30,
-              timeout: 5,
-              everyPage: false
-            }
-          });
-        } catch (e) {}
-      });
+    function openDirectLink(amount) {
+      haptic("tap");
+      if (watchJob) return;
+      amount = amount || 0.03;
+      var url = CONFIG.directLink || "https://omg10.com/4/11204770";
+      try {
+        if (tg && tg.openLink) tg.openLink(url);
+        else window.open(url, "_blank", "noopener,noreferrer");
+      } catch (e) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+      beginWatch(amount);
+      document.getElementById("overlay").classList.add("show", "watch");
+      setWatchUi("Direct link opened", "Stay 15 seconds, then return to claim " + money(amount), CONFIG.watchSecs);
+      watchJob.markAd();
     }
+
+    function startInAppAds() {}
 
     function claimDaily() {
       haptic("tap");
@@ -1206,9 +1472,9 @@
 
     function shareLink() {
       const link = referralLink();
-      const text = "Join me on Hustle Hub and earn USDT. Use my link: " + link;
+      const text = "Join me on Hustle Hub and earn USDT " + link;
       if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join me on Hustle Hub via @CoinQuest_bot and earn USDT"));
+        tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text));
         return;
       }
       window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text), "_blank");
@@ -1259,19 +1525,35 @@
     function wheelLeft() {
       return Math.max(0, (state.wheelAt || 0) + WHEEL_COOLDOWN - Date.now());
     }
+    function wheelReady() {
+      return wheelLeft() === 0 || extraOf("wheel") > 0;
+    }
+    function scratchReady() {
+      return state.scratchOn !== todayKey() || extraOf("scratch") > 0;
+    }
+    function leftPlus(dateKey, usedKey, cap, gid) {
+      return dayCount(dateKey, usedKey, cap).left + extraOf(gid);
+    }
+    function consumeDay(dateKey, usedKey, cap, gid) {
+      dayCount(dateKey, usedKey, cap);
+      if ((state[usedKey] || 0) < cap) state[usedKey] = (state[usedKey] || 0) + 1;
+      else takeExtra(gid);
+      save();
+    }
 
     function gameMeta() {
-      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
-      const taps = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
-      const mem = dayCount("memDate", "memUsed", MEM_DAILY);
-      const w = wheelLeft();
-      const scratchReady = state.scratchOn !== todayKey();
+      const flips = leftPlus("flipsDate", "flipsUsed", FLIP_DAILY, "flip");
+      const taps = leftPlus("tapsDate", "tapsUsed", TAP_DAILY, "tap");
+      const mem = leftPlus("memDate", "memUsed", MEM_DAILY, "memory");
+      const w = wheelReady();
+      const sc = scratchReady();
+      const wLeft = wheelLeft();
       return [
-        { id: "wheel", ico: "🎡", title: "Lucky Wheel", desc: "Spin for up to $0.10", chip: w ? fmtLeft(w) : "Ready", ready: w === 0 },
-        { id: "tap", ico: "👆", title: "Tap Rush", desc: "8 seconds of taps", chip: taps.left + " left", ready: taps.left > 0 },
-        { id: "flip", ico: "🪙", title: "Coin Flip", desc: "Call it · win $0.02", chip: flips.left + " left", ready: flips.left > 0 },
-        { id: "memory", ico: "🧠", title: "Memory Match", desc: "Pair all tiles · $0.06", chip: mem.left + " left", ready: mem.left > 0 },
-        { id: "scratch", ico: "🎫", title: "Scratch Card", desc: "Once a day · up to $0.20", chip: scratchReady ? "Ready" : "Claimed", ready: scratchReady }
+        { id: "wheel", ico: "🎡", title: "Lucky Wheel", desc: "Spin for up to $0.10", chip: w ? (wLeft && extraOf("wheel") ? extraOf("wheel") + " extra" : "Ready") : fmtLeft(wLeft), ready: w },
+        { id: "tap", ico: "👆", title: "Tap Rush", desc: "8 seconds of taps", chip: taps + " left", ready: taps > 0 },
+        { id: "flip", ico: "🪙", title: "Coin Flip", desc: "Call it · win $0.02", chip: flips + " left", ready: flips > 0 },
+        { id: "memory", ico: "🧠", title: "Memory Match", desc: "Pair all tiles · $0.06", chip: mem + " left", ready: mem > 0 },
+        { id: "scratch", ico: "🎫", title: "Scratch Card", desc: "Up to $0.20", chip: sc ? "Ready" : "Locked", ready: sc }
       ];
     }
 
@@ -1307,23 +1589,26 @@
         '<div class="legend">' + labels.map(function (l) { return "<span>" + l + "</span>"; }).join("") + "</div>" +
         '<div class="wheel-wrap"><div class="wheel-pin"></div><div class="wheel" id="wheelDisk"></div><div class="wheel-hub">SPIN</div></div>' +
         '<button class="btn btn-primary btn-full btn-lg" id="spinBtn" onclick="spinWheel()">Spin the wheel</button>' +
-        '<p class="tiny" id="wheelHint" style="text-align:center">One spin every 3 hours. Pointer at the top wins.</p>';
+        '<p class="tiny" id="wheelHint" style="text-align:center">One free spin every 3 hours. Open the offer for extra spins.</p>' +
+        '<div id="wheelUnlock"></div>';
       refreshWheelBtn();
     }
 
     function refreshWheelBtn() {
       const btn = document.getElementById("spinBtn");
       const hint = document.getElementById("wheelHint");
+      const box = document.getElementById("wheelUnlock");
       if (!btn) return;
-      const left = wheelLeft();
-      btn.disabled = left > 0 || !!spinWheel.busy;
-      if (hint && left > 0) hint.textContent = "Next spin in " + fmtLeft(left);
+      const ready = wheelReady();
+      btn.disabled = !ready || !!spinWheel.busy;
+      if (hint && !ready) hint.textContent = "Next free spin in " + fmtLeft(wheelLeft());
+      if (box) box.innerHTML = ready ? "" : unlockHtml("wheel");
     }
 
     function spinWheel() {
       if (spinWheel.busy) return;
-      if (wheelLeft() > 0) {
-        toast("Wheel is cooling down.", false);
+      if (!wheelReady()) {
+        toast("Open the offer for 30 seconds to spin again.", false);
         return;
       }
       haptic("tap");
@@ -1343,7 +1628,8 @@
       spinWheel.base = end;
       setTimeout(function () {
         spinWheel.busy = false;
-        state.wheelAt = Date.now();
+        if (wheelLeft() === 0) state.wheelAt = Date.now();
+        else takeExtra("wheel");
         const prize = WHEEL_PRIZES[idx];
         payoutGame(prize, prize ? "Wheel win" : "Wheel miss");
         refreshWheelBtn();
@@ -1351,13 +1637,14 @@
     }
 
     function mountTap() {
-      const taps = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
+      const taps = leftPlus("tapsDate", "tapsUsed", TAP_DAILY, "tap");
       const body = document.getElementById("playBody");
       body.innerHTML =
         '<p class="tiny" style="text-align:center">Tap as fast as you can for 8 seconds. More taps = more USDT.</p>' +
-        '<div class="glass" style="padding:14px;text-align:center;margin-bottom:10px"><div class="n n-gold" id="tapClock">8.0s</div><div class="l muted">Time left · ' + taps.left + " plays today</div></div>" +
+        '<div class="glass" style="padding:14px;text-align:center;margin-bottom:10px"><div class="n n-gold" id="tapClock">8.0s</div><div class="l muted">Time left · ' + taps + " plays</div></div>" +
         '<div class="tap-arena" id="tapArena"><div><div class="tap-n" id="tapN">0</div><div class="muted" id="tapHint">Tap to start</div></div></div>' +
-        '<p class="tiny" style="text-align:center">Reward = taps × $0.001 (max $0.05). Best: ' + (state.tapBest || 0) + "</p>";
+        '<p class="tiny" style="text-align:center">Reward = taps × $0.001 (max $0.05). Best: ' + (state.tapBest || 0) + "</p>" +
+        (taps > 0 ? "" : unlockHtml("tap"));
       const arena = document.getElementById("tapArena");
       let started = false, ended = false, n = 0, t0 = 0, raf;
       function frame() {
@@ -1368,7 +1655,7 @@
           ended = true;
           const reward = Math.min(0.05, Math.round(n * 0.001 * 1000) / 1000);
           if (n > (state.tapBest || 0)) state.tapBest = n;
-          state.tapsUsed = (state.tapsUsed || 0) + 1;
+          consumeDay("tapsDate", "tapsUsed", TAP_DAILY, "tap");
           document.getElementById("tapHint").textContent = "Done";
           payoutGame(reward, n + " taps");
           return;
@@ -1376,8 +1663,8 @@
         raf = requestAnimationFrame(frame);
       }
       arena.onclick = function () {
-        const info = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
-        if (!started && info.left <= 0) { toast("Daily Tap Rush limit reached.", false); return; }
+        const info = leftPlus("tapsDate", "tapsUsed", TAP_DAILY, "tap");
+        if (!started && info <= 0) { toast("Open the offer for 30 seconds to keep playing.", false); return; }
         if (ended) return;
         if (!started) {
           started = true;
@@ -1392,19 +1679,20 @@
     }
 
     function mountFlip() {
-      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
+      const flips = leftPlus("flipsDate", "flipsUsed", FLIP_DAILY, "flip");
       document.getElementById("playBody").innerHTML =
-        '<p class="tiny" style="text-align:center">' + flips.left + " flips left today. Win $0.02 if you call it right.</p>" +
+        '<p class="tiny" style="text-align:center">' + flips + " flips left. Win $0.02 if you call it right.</p>" +
         '<div class="coin" id="coinFace">?</div>' +
         '<div class="choice-row">' +
         '<div class="choice" onclick="doFlip(\'H\')">Heads</div>' +
         '<div class="choice" onclick="doFlip(\'T\')">Tails</div>' +
-        "</div>";
+        "</div>" +
+        (flips > 0 ? "" : unlockHtml("flip"));
     }
 
     function doFlip(call) {
-      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
-      if (flips.left <= 0) { toast("Daily coin flips used up.", false); return; }
+      const flips = leftPlus("flipsDate", "flipsUsed", FLIP_DAILY, "flip");
+      if (flips <= 0) { toast("Open the offer for 30 seconds to keep playing.", false); return; }
       if (doFlip.busy) return;
       doFlip.busy = true;
       const result = Math.random() < 0.5 ? "H" : "T";
@@ -1414,24 +1702,24 @@
       coin.classList.add("flip");
       setTimeout(function () {
         coin.textContent = result === "H" ? "H" : "T";
-        state.flipsUsed = (state.flipsUsed || 0) + 1;
+        consumeDay("flipsDate", "flipsUsed", FLIP_DAILY, "flip");
         const win = call === result;
         payoutGame(win ? 0.02 : 0, win ? "Correct call" : "Wrong call");
         doFlip.busy = false;
-        const left = dayCount("flipsDate", "flipsUsed", FLIP_DAILY).left;
-        if (left <= 0) closeGame();
+        const left = leftPlus("flipsDate", "flipsUsed", FLIP_DAILY, "flip");
+        if (left <= 0) mountFlip();
       }, 900);
     }
 
     function mountMemory() {
-      const mem = dayCount("memDate", "memUsed", MEM_DAILY);
-      if (mem.left <= 0) {
-        document.getElementById("playBody").innerHTML = '<p class="tiny" style="text-align:center">Daily memory games used up. Come back tomorrow.</p>';
+      const mem = leftPlus("memDate", "memUsed", MEM_DAILY, "memory");
+      if (mem <= 0) {
+        document.getElementById("playBody").innerHTML = '<p class="tiny" style="text-align:center">No plays left.</p>' + unlockHtml("memory");
         return;
       }
       const deck = MEM_ICONS.concat(MEM_ICONS).sort(function () { return Math.random() - 0.5; });
       document.getElementById("playBody").innerHTML =
-        '<p class="tiny" style="text-align:center">Match every pair to earn $0.06. ' + mem.left + " plays left today.</p>" +
+        '<p class="tiny" style="text-align:center">Match every pair to earn $0.06. ' + mem + " plays left.</p>" +
         '<div class="mem-grid" id="memGrid"></div>' +
         '<p class="tiny" style="text-align:center" id="memStatus">Moves: 0</p>';
       const grid = document.getElementById("memGrid");
@@ -1459,7 +1747,7 @@
           first = -1;
           matched += 1;
           if (matched === MEM_ICONS.length) {
-            state.memUsed = (state.memUsed || 0) + 1;
+            consumeDay("memDate", "memUsed", MEM_DAILY, "memory");
             payoutGame(0.06, "Memory complete");
             setTimeout(closeGame, 700);
           }
@@ -1478,34 +1766,103 @@
     }
 
     function mountScratch() {
-      const ready = state.scratchOn !== todayKey();
+      const ready = scratchReady();
       document.getElementById("playBody").innerHTML =
-        '<p class="tiny" style="text-align:center">Tap the foil to reveal today\'s prize. One card per day.</p>' +
+        '<p class="tiny" style="text-align:center">Tap the foil to reveal a prize.</p>' +
         '<div class="scratch' + (ready ? "" : " revealed") + '" id="scratchCard">' +
-        '<div class="prize" id="scratchPrize">' + (ready ? "?" : "Come back tomorrow") + "</div>" +
-        '<div class="foil">SCRATCH</div></div>';
+        '<div class="prize" id="scratchPrize">' + (ready ? "?" : "Locked") + "</div>" +
+        '<div class="foil">SCRATCH</div></div>' +
+        (ready ? "" : unlockHtml("scratch"));
       const card = document.getElementById("scratchCard");
       if (!ready) return;
       card.onclick = function () {
-        if (state.scratchOn === todayKey()) return;
+        if (!scratchReady()) return;
         const hidden = [0.01, 0.02, 0.05, 0.08, 0.12, 0.20, 0][Math.floor(Math.random() * 7)];
         document.getElementById("scratchPrize").textContent = hidden ? money(hidden) : "Try again";
         card.classList.add("revealed");
-        state.scratchOn = todayKey();
+        if (state.scratchOn !== todayKey()) state.scratchOn = todayKey();
+        else takeExtra("scratch");
         payoutGame(hidden, hidden ? "Scratch win" : "Scratch miss");
       };
     }
 
+    var WD_FEED = [
+      ["Aisha", 12.4], ["Brian", 10], ["Chen", 18.5], ["Diana", 25], ["Eli", 10.2],
+      ["Fatima", 15], ["Gio", 32], ["Hana", 11.8], ["Ivan", 20], ["Jade", 14.5],
+      ["Kofi", 10], ["Lina", 22.7], ["Musa", 16], ["Nora", 13.3], ["Omar", 40],
+      ["Pia", 10.5], ["Quinn", 12], ["Ravi", 19.9], ["Sara", 28], ["Tariq", 11]
+    ];
+    function renderMarquee() {
+      var el = document.getElementById("wdMarquee");
+      if (!el) return;
+      var bits = WD_FEED.map(function (r) {
+        return "<span>💸 " + r[0] + " withdrew <b>" + money(r[1]) + "</b> USDT</span>";
+      });
+      if (state.withdrawals && state.withdrawals.length) {
+        bits.unshift("<span>💸 You requested <b>" + money(state.withdrawals[state.withdrawals.length - 1].amount) + "</b> USDT</span>");
+      }
+      el.innerHTML = bits.concat(bits).join("");
+    }
+
     function submitWithdraw() {
       if (!canWithdraw()) {
-        toast("Meet the $10 balance and 5-friends requirements first.", false);
+        toast("Need $10 USDT, 100 ads watched, and 5 friends.", false);
         return;
       }
-      const method = document.getElementById("wdMethod").value;
+      const method = "USDT TRC20";
       const address = (document.getElementById("wdAddress").value || "").trim();
       const amount = Number(document.getElementById("wdAmount").value);
-      if (address.length < 6) {
-        toast("Enter a valid wallet or PayPal address.", false);
+      if (address.length < 20 || address.charAt(0) !== "T") {
+        toast("Enter a valid USDT TRC20 address (starts with T).", false);
+        return;
+      }
+      if (!amount || amount < CONFIG.minWithdraw) {
+        toast("Minimum withdrawal is $10.00 USDT.", false);
+        return;
+      }
+      if (amount > state.balance + 1e-9) {
+        toast("Amount exceeds your balance.", false);
+        return;
+      }
+      state.balance = Math.round((state.balance - amount) * 100) / 100;
+      state.withdrawals.push({
+        amount: amount,
+        method: method,
+        address: address,
+        date: todayKey(),
+        status: "Pending"
+      });
+      save();
+      document.getElementById("wdAddress").value = "";
+      document.getElementById("wdAmount").value = "";
+      render();
+      toast("Withdrawal requested · " + money(amount));
+    }
+
+    load();
+    if (!state.userId) state.userId = String(user.id);
+    handleReferralInbound();
+    save();
+    render();
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3156eb15e3eacb3',t:'MTc4Nzc3NDUyOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+bits.concat(bits).join("");
+    }
+
+    function submitWithdraw() {
+      if (!canWithdraw()) {
+        toast("Need $10 USDT, 100 ads watched, and 5 friends.", false);
+        return;
+      }
+      const method = "USDT TRC20";
+      const address = (document.getElementById("wdAddress").value || "").trim();
+      const amount = Number(document.getElementById("wdAmount").value);
+      if (address.length < 20 || address.charAt(0) !== "T") {
+        toast("Enter a valid USDT TRC20 address (starts with T).", false);
         return;
       }
       if (!amount || amount < CONFIG.minWithdraw) {
@@ -1541,3 +1898,6 @@
   </script>
 </body>
 </html>
+
+ml>
+
