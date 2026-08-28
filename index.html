@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#07070f" />
+  <title>Hustle Hub</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://alwingulla.com/88/tag.min.js"></script>
+  <style>
+    :root {
+      --bg: #07070f;
+      --bg-elev: #0e0e1a;
+      --card: rgba(22, 20, 40, 0.62);
+      --card-solid: #14122a;
+      --border: rgba(255, 255, 255, 0.1);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --purple: #c084fc;
+      --purple-deep: #7c3aed;
+      --pink: #f472b6;
+      --cyan: #22d3ee;
+      --green: #4ade80;
+      --gold: #fbbf24;
+      --silver: #cbd5e1;
+      --bronze: #d97706;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --danger: #fb7185;
+      --nav-h: 78px;
+      --radius: 20px;
+      --shadow: 0 10px 40px rgba(88, 28, 180, 0.28);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+    .orb-a { width: 280px; height: 280px; background: #6d28d9; top: -80px; left: -90px; }
+    .orb-b { width: 220px; height: 220px; background: #db2777; top: 28%; right: -100px; }
+    .orb-c { width: 260px; height: 260px; background: #0e7490; bottom: 40px; left: -80px; opacity: 0.35; }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header.app-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 8px;
+      padding-top: calc(10px + env(safe-area-inset-top));
+    }
+    .avatar {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 16px; color: #fff;
+      overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(192, 132, 252, 0.45);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .who { flex: 1; min-width: 0; }
+    .who .hello { font-size: 12px; color: var(--muted); }
+    .who h1 { font-size: 17px; font-weight: 750; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      padding: 6px 10px; border-radius: 999px;
+      background: rgba(74, 222, 128, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+      white-space: nowrap;
+    }
+
+    .views {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 16px calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));
+      scroll-behavior: smooth;
+    }
+    .view { display: none; animation: fadeUp 0.28s ease; }
+    .view.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .glass {
+      background: var(--card);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .balance-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 22px 20px 18px;
+      margin-bottom: 14px;
+      background:
+        linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(219, 39, 119, 0.28) 50%, rgba(6, 182, 212, 0.22));
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .balance-hero::after {
+      content: "";
+      position: absolute; inset: auto -20% -40% 40%;
+      height: 160px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,211,238,0.35), transparent 70%);
+      pointer-events: none;
+    }
+    .balance-label { font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .balance-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 6px; }
+    .balance-amt { font-size: 36px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .balance-amt span { font-size: 16px; font-weight: 700; color: var(--cyan); margin-left: 4px; }
+    .hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .btn {
+      appearance: none; border: 0; cursor: pointer;
+      font: inherit; font-weight: 700; color: #fff;
+      border-radius: 14px; padding: 12px 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.3); }
+    .btn-primary {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+    }
+    .btn-cyan {
+      background: linear-gradient(135deg, #06b6d4, #22c55e);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.28);
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      box-shadow: none;
+    }
+    .btn-full { width: 100%; }
+    .btn-lg { padding: 15px 16px; font-size: 15px; border-radius: 16px; }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;
+    }
+    .stat {
+      padding: 12px 10px; text-align: center;
+    }
+    .stat .n { font-size: 18px; font-weight: 800; }
+    .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .n-purple { color: var(--purple); }
+    .n-cyan { color: var(--cyan); }
+    .n-green { color: var(--green); }
+    .n-pink { color: var(--pink); }
+    .n-gold { color: var(--gold); }
+
+    .section-title {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 6px 2px 10px;
+      font-size: 14px; font-weight: 750;
+    }
+    .section-title span { color: var(--muted); font-weight: 600; font-size: 12px; }
+
+    .task-card {
+      padding: 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 10px;
+    }
+    .task-ico {
+      width: 48px; height: 48px; border-radius: 16px; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+    }
+    .task-body { flex: 1; min-width: 0; }
+    .task-body h3 { font-size: 14px; font-weight: 750; }
+    .task-body p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .reward-chip {
+      font-size: 12px; font-weight: 800; color: var(--green);
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      padding: 6px 9px; border-radius: 999px; white-space: nowrap;
+    }
+    .reward-chip.done { color: var(--muted); background: rgba(255,255,255,0.05); border-color: var(--border); }
+
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .quick {
+      padding: 16px; cursor: pointer;
+    }
+    .quick h3 { font-size: 14px; margin: 8px 0 4px; }
+    .quick p { font-size: 12px; color: var(--muted); }
+
+    .ad-card { padding: 18px; text-align: center; margin-bottom: 12px; }
+    .ad-card .big-ico { font-size: 42px; filter: drop-shadow(0 8px 16px rgba(192,132,252,0.4)); }
+    .ad-card h2 { margin: 8px 0 4px; font-size: 20px; }
+    .ad-card p { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+
+    .ref-box { padding: 16px; margin-bottom: 12px; }
+    .link-row {
+      display: flex; gap: 8px; margin-top: 10px;
+    }
+    .link-row input {
+      flex: 1; min-width: 0;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 12px;
+      outline: none;
+    }
+    .howto { padding: 14px 16px; margin-bottom: 12px; }
+    .howto ol { padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .howto li { margin: 4px 0; }
+
+    label.field { display: block; font-size: 12px; color: var(--muted); font-weight: 650; margin: 12px 0 6px; }
+    input.field, select.field, textarea.field {
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit; font-size: 14px;
+      outline: none;
+    }
+    input.field:focus, select.field:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.18); }
+    select.field option { background: #16142a; }
+
+    .checklist { list-style: none; margin: 8px 0 14px; }
+    .checklist li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .checklist li:last-child { border-bottom: 0; }
+    .dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 11px; font-weight: 800;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .ok .dot { background: rgba(74,222,128,0.18); color: var(--green); border-color: rgba(74,222,128,0.4); }
+    .ok { color: var(--text); }
+    .bad .dot { background: rgba(251,113,133,0.12); color: var(--danger); border-color: rgba(251,113,133,0.35); }
+
+    .lock-note {
+      font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.45;
+    }
+
+    .prize {
+      padding: 16px; margin-bottom: 12px;
+      background:
+        linear-gradient(135deg, rgba(251,191,36,0.16), rgba(124,58,237,0.22));
+      border: 1px solid rgba(251,191,36,0.28);
+    }
+    .prize h3 { font-size: 14px; }
+    .prize .pool { font-size: 28px; font-weight: 800; margin: 4px 0; color: var(--gold); }
+    .splits { display: flex; gap: 8px; margin: 10px 0; }
+    .split { flex: 1; text-align: center; padding: 8px 4px; border-radius: 12px; background: rgba(0,0,0,0.25); font-size: 11px; }
+    .split b { display: block; font-size: 14px; margin-top: 2px; }
+    .countdown {
+      display: flex; justify-content: center; gap: 8px; margin-top: 8px;
+    }
+    .cd {
+      min-width: 54px; padding: 8px 6px; border-radius: 12px;
+      background: rgba(0,0,0,0.35); text-align: center;
+    }
+    .cd b { display: block; font-size: 18px; font-weight: 800; }
+    .cd span { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    .tabs {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+      background: rgba(255,255,255,0.04);
+      padding: 4px; border-radius: 14px; margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .tabs button {
+      appearance: none; border: 0; background: transparent; color: var(--muted);
+      font: inherit; font-size: 12px; font-weight: 750; padding: 9px 6px;
+      border-radius: 11px; cursor: pointer;
+    }
+    .tabs button.on {
+      background: linear-gradient(135deg, rgba(168,85,247,0.85), rgba(236,72,153,0.75));
+      color: #fff; box-shadow: 0 6px 16px rgba(168,85,247,0.3);
+    }
+
+    .podium { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; margin-bottom: 14px; }
+    .pod {
+      text-align: center; padding: 12px 6px 14px; border-radius: 18px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    }
+    .pod.p1 { order: 2; transform: translateY(-10px); border-color: rgba(251,191,36,0.5); box-shadow: 0 0 24px rgba(251,191,36,0.22); }
+    .pod.p2 { order: 1; border-color: rgba(203,213,225,0.35); }
+    .pod.p3 { order: 3; border-color: rgba(217,119,6,0.4); }
+    .pod .av {
+      width: 48px; height: 48px; margin: 0 auto 8px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 800;
+      background: linear-gradient(135deg, #334155, #1e293b);
+    }
+    .pod.p1 .av { width: 58px; height: 58px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1c1003; box-shadow: 0 0 20px rgba(251,191,36,0.5); }
+    .pod.p2 .av { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #0f172a; }
+    .pod.p3 .av { background: linear-gradient(135deg, #d97706, #92400e); color: #fff; }
+    .pod .nm { font-size: 12px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pod .am { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 2px; }
+    .medal { font-size: 18px; margin-bottom: 4px; }
+
+    .lb { display: flex; flex-direction: column; gap: 6px; }
+    .lb-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 14px;
+      background: rgba(255,255,255,0.04); border: 1px solid transparent;
+    }
+    .lb-row.me { border-color: rgba(168,85,247,0.55); background: rgba(168,85,247,0.12); }
+    .rank { width: 28px; font-weight: 800; font-size: 13px; color: var(--muted); text-align: center; }
+    .lb-av {
+      width: 34px; height: 34px; border-radius: 11px;
+      display: grid; place-items: center; font-size: 12px; font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+    }
+    .lb-name { flex: 1; font-size: 13px; font-weight: 650; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lb-amt { font-size: 13px; font-weight: 800; color: var(--green); }
+
+    nav.bottom {
+      position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: 0; width: 100%; max-width: 600px;
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+      background: rgba(8, 8, 16, 0.82);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-top: 1px solid var(--border);
+      z-index: 20;
+    }
+    nav.bottom button {
+      appearance: none; border: 0; background: transparent; color: var(--muted);
+      font: inherit; cursor: pointer; padding: 6px 2px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    nav.bottom button .ic { font-size: 20px; line-height: 1; filter: grayscale(0.4); }
+    nav.bottom button .lb { font-size: 10px; font-weight: 750; }
+    nav.bottom button.on { color: #fff; }
+    nav.bottom button.on .ic { filter: none; transform: translateY(-1px); }
+    nav.bottom button.on .lb { background: linear-gradient(90deg, var(--purple), var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(5,5,12,0.72);
+      backdrop-filter: blur(10px);
+      display: none; place-items: center;
+      max-width: 600px; margin: 0 auto;
+    }
+    .overlay.show { display: grid; }
+    .loader-card { text-align: center; padding: 28px 26px; width: min(280px, 86vw); }
+    .spinner {
+      width: 46px; height: 46px; margin: 0 auto 12px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.12);
+      border-top-color: var(--cyan);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; left: 50%; transform: translateX(-50%) translateY(20px);
+      bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));
+      z-index: 60; opacity: 0; pointer-events: none;
+      background: rgba(20,18,40,0.95);
+      border: 1px solid var(--border-strong);
+      color: #fff; font-size: 13px; font-weight: 650;
+      padding: 11px 16px; border-radius: 14px;
+      max-width: 90%; text-align: center;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .hist { margin-top: 12px; }
+    .hist-item {
+      display: flex; justify-content: space-between; gap: 8px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 12px;
+    }
+    .muted { color: var(--muted); }
+    .tiny { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+    nav.bottom { grid-template-columns: repeat(6, 1fr); }
+    nav.bottom button .lb { font-size: 9px; }
+    nav.bottom button .ic { font-size: 18px; }
+
+    .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .game-card { padding: 16px 14px; cursor: pointer; min-height: 148px; position: relative; overflow: hidden; }
+    .game-card .gico { font-size: 30px; filter: drop-shadow(0 8px 14px rgba(168,85,247,0.35)); }
+    .game-card h3 { font-size: 14px; margin: 8px 0 4px; }
+    .game-card p { font-size: 11px; color: var(--muted); line-height: 1.35; }
+    .game-card .gmeta { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .play-sheet {
+      position: fixed; inset: 0; z-index: 40;
+      max-width: 600px; margin: 0 auto;
+      background: rgba(7,7,15,0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: none; flex-direction: column;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+    .play-sheet.show { display: flex; }
+    .play-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; padding-top: calc(12px + env(safe-area-inset-top));
+    }
+    .play-head h2 { flex: 1; font-size: 16px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+      color: #fff; font-size: 20px; cursor: pointer;
+    }
+    .play-body { flex: 1; overflow-y: auto; padding: 8px 16px 16px; }
+    .wheel-wrap { position: relative; width: 250px; height: 250px; margin: 10px auto 18px; }
+    .wheel {
+      width: 250px; height: 250px; border-radius: 50%;
+      border: 6px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 32px rgba(168,85,247,0.35), inset 0 0 24px rgba(0,0,0,0.35);
+      background: conic-gradient(from -90deg,
+        #a855f7 0 45deg, #22d3ee 45deg 90deg, #334155 90deg 135deg, #f472b6 135deg 180deg,
+        #4ade80 180deg 225deg, #fbbf24 225deg 270deg, #818cf8 270deg 315deg, #fb7185 315deg 360deg);
+      transition: transform 4.2s cubic-bezier(0.12, 0.72, 0.08, 1);
+    }
+    .wheel-pin {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-top: 18px solid #fff;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+      z-index: 2;
+    }
+    .wheel-hub {
+      position: absolute; inset: 0; margin: auto; width: 52px; height: 52px; border-radius: 50%;
+      background: #0b0b14; border: 3px solid #fff; display: grid; place-items: center;
+      font-weight: 800; font-size: 12px; z-index: 1;
+    }
+    .choice-row { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+    .choice {
+      flex: 1; max-width: 140px; padding: 16px 10px; border-radius: 16px; cursor: pointer;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      text-align: center; font-weight: 800;
+    }
+    .choice:active { transform: scale(0.97); }
+    .coin {
+      width: 120px; height: 120px; margin: 16px auto; border-radius: 50%;
+      background: linear-gradient(145deg, #fbbf24, #b45309);
+      display: grid; place-items: center; font-size: 42px; font-weight: 800; color: #1c1003;
+      box-shadow: 0 12px 30px rgba(251,191,36,0.35);
+    }
+    .coin.flip { animation: coinFlip 0.9s ease; }
+    @keyframes coinFlip {
+      0% { transform: rotateY(0); }
+      50% { transform: rotateY(540deg) scale(1.08); }
+      100% { transform: rotateY(1080deg); }
+    }
+    .tap-arena {
+      height: 220px; border-radius: 24px; margin: 12px 0;
+      display: grid; place-items: center;
+      background: radial-gradient(circle at 50% 40%, rgba(168,85,247,0.35), rgba(8,8,18,0.6));
+      border: 1px solid var(--border); cursor: pointer; user-select: none;
+    }
+    .tap-arena .tap-n { font-size: 56px; font-weight: 800; }
+    .mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+    .mem-tile {
+      aspect-ratio: 1; border-radius: 14px; cursor: pointer;
+      background: linear-gradient(135deg, rgba(168,85,247,0.35), rgba(34,211,238,0.18));
+      border: 1px solid var(--border);
+      display: grid; place-items: center; font-size: 22px;
+    }
+    .mem-tile.off { background: rgba(255,255,255,0.04); color: transparent; }
+    .mem-tile.match { opacity: 0.45; pointer-events: none; }
+    .scratch {
+      height: 160px; border-radius: 20px; margin: 12px 0; position: relative; overflow: hidden;
+      display: grid; place-items: center; cursor: pointer;
+      background: linear-gradient(135deg, #7c3aed, #ec4899);
+    }
+    .scratch .prize { font-size: 28px; font-weight: 800; }
+    .scratch .foil {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(135deg, #cbd5e1, #94a3b8 12px, #e2e8f0 12px, #64748b 24px);
+      display: grid; place-items: center; font-weight: 800; color: #0f172a;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .scratch.revealed .foil { opacity: 0; transform: scale(1.08); pointer-events: none; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .legend span {
+      font-size: 11px; padding: 4px 8px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+
+  <div class="app">
+    <header class="app-header">
+      <div class="avatar" id="avatar">H</div>
+      <div class="who">
+        <div class="hello">Welcome back</div>
+        <h1 id="userName">Hustler</h1>
+      </div>
+      <div class="pill">USDT</div>
+    </header>
+
+    <main class="views" id="views">
+      <!-- HOME -->
+      <section class="view active" data-view="home">
+        <div class="glass balance-hero">
+          <div class="balance-label">Available Balance</div>
+          <div class="balance-row">
+            <div class="balance-amt" id="homeBalance">$0.00 <span>USDT</span></div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="go('earn')">▶ Earn now</button>
+            <button class="btn btn-ghost" onclick="go('withdraw')">Withdraw</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="glass stat"><div class="n n-cyan" id="statAds">0</div><div class="l">Ads watched</div></div>
+          <div class="glass stat"><div class="n n-purple" id="statRefs">0</div><div class="l">Friends</div></div>
+          <div class="glass stat"><div class="n n-green" id="statEarned">$0.00</div><div class="l">Total earned</div></div>
+        </div>
+
+        <div class="section-title">Daily Hustle Task</div>
+        <div class="glass task-card" id="homeDaily" onclick="claimDaily()">
+          <div class="task-ico">⚡</div>
+          <div class="task-body">
+            <h3>Complete today's hustle</h3>
+            <p>Open the partner offer and grab your daily bonus.</p>
+          </div>
+          <div class="reward-chip" id="homeDailyChip">+$0.50</div>
+        </div>
+
+        <div class="section-title">Quick actions</div>
+        <div class="quick-grid">
+          <div class="glass quick" onclick="go('earn')">
+            <div class="task-ico">📺</div>
+            <h3>Watch ads</h3>
+            <p>Unlimited · $0.01 each</p>
+          </div>
+          <div class="glass quick" onclick="go('friends')">
+            <div class="task-ico">👥</div>
+            <h3>Invite friends</h3>
+            <p>$1.00 per referral</p>
+          </div>
+          <div class="glass quick" onclick="go('games')">
+            <div class="task-ico">🎮</div>
+            <h3>Play games</h3>
+            <p>Spin, tap, match · extra USDT</p>
+          </div>
+          <div class="glass quick" onclick="go('withdraw')">
+            <div class="task-ico">💳</div>
+            <h3>Cash out</h3>
+            <p>Min $10 · 5 friends</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EARN -->
+      <section class="view" data-view="earn">
+        <div class="glass ad-card">
+          <div class="big-ico">🎬</div>
+          <h2>Watch & Earn</h2>
+          <p>Unlimited rewarded ads. Every completed view pays <b style="color:var(--green)">$0.01 USDT</b>.</p>
+          <button class="btn btn-primary btn-full btn-lg" id="watchBtn" onclick="watchAd()">Watch Ad · +$0.01</button>
+          <p class="tiny">Stay until the reward is confirmed.</p>
+        </div>
+
+        <div class="section-title">Daily Hustle Task <span>resets every 24h</span></div>
+        <div class="glass task-card" onclick="claimDaily()">
+          <div class="task-ico">⚡</div>
+          <div class="task-body">
+            <h3>Daily Hustle Task</h3>
+            <p>Visit the partner page once per day.</p>
+          </div>
+          <div class="reward-chip" id="earnDailyChip">+$0.50</div>
+        </div>
+
+        <div class="glass" style="padding:14px 16px">
+          <div class="section-title" style="margin:0 0 8px">Session stats</div>
+          <div class="stats" style="margin:0">
+            <div class="stat" style="padding:8px 0"><div class="n n-cyan" id="earnAds">0</div><div class="l">Ads</div></div>
+            <div class="stat" style="padding:8px 0"><div class="n n-green" id="earnAdUsd">$0.00</div><div class="l">From ads</div></div>
+            <div class="stat" style="padding:8px 0"><div class="n n-gold" id="earnDailyUsd">$0.00</div><div class="l">Daily</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAMES -->
+      <section class="view" data-view="games">
+        <div class="glass balance-hero" style="padding:18px">
+          <div class="balance-label">Game earnings</div>
+          <div class="balance-amt" id="gameEarn">$0.00 <span>USDT</span></div>
+          <div class="stats" style="margin:14px 0 0">
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-pink" id="gamePlays">0</div><div class="l">Plays</div></div>
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-gold" id="gameBest">0</div><div class="l">Best taps</div></div>
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-green" id="gameBal">$0.00</div><div class="l">Balance</div></div>
+          </div>
+        </div>
+        <div class="section-title">Play to earn <span>daily limits apply</span></div>
+        <div class="game-grid" id="gameGrid"></div>
+        <p class="tiny">Rewards credit instantly to your USDT balance. Come back when cooldowns reset.</p>
+      </section>
+
+      <!-- FRIENDS -->
+      <section class="view" data-view="friends">
+        <div class="glass balance-hero" style="padding:18px">
+          <div class="balance-label">Referral earnings</div>
+          <div class="balance-amt" id="refEarn">$0.00 <span>USDT</span></div>
+          <div class="stats" style="margin:14px 0 0">
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-purple" id="refCount">0</div><div class="l">Friends</div></div>
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-green">$1.00</div><div class="l">Per invite</div></div>
+            <div class="stat" style="background:rgba(0,0,0,0.2);border-radius:14px"><div class="n n-gold" id="refNeed">5</div><div class="l">To unlock</div></div>
+          </div>
+        </div>
+
+        <div class="glass ref-box">
+          <h3 style="font-size:14px">Your invite link</h3>
+          <p class="tiny">Share Hustle Hub. You earn $1.00 USDT when a friend joins through your link.</p>
+          <div class="link-row">
+            <input id="refLink" readonly value="" />
+            <button class="btn btn-primary" onclick="copyLink()">Copy</button>
+          </div>
+          <button class="btn btn-cyan btn-full" style="margin-top:10px" onclick="shareLink()">✈ Share on Telegram</button>
+        </div>
+
+        <div class="glass howto">
+          <h3 style="font-size:14px;margin-bottom:6px">How it works</h3>
+          <ol>
+            <li>Copy or share your unique link.</li>
+            <li>Friends open Hustle Hub via Telegram.</li>
+            <li>You receive <b style="color:var(--green)">$1.00 USDT</b> per successful join.</li>
+            <li>Invite 5 friends to unlock withdrawals.</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- WITHDRAW -->
+      <section class="view" data-view="withdraw">
+        <div class="glass" style="padding:16px;margin-bottom:12px">
+          <div class="balance-label">Withdrawable</div>
+          <div class="balance-amt" id="wdBalance">$0.00 <span>USDT</span></div>
+          <p class="tiny">Minimum $10.00 USDT · at least 5 invited friends required.</p>
+        </div>
+
+        <div class="glass" style="padding:16px;margin-bottom:12px">
+          <h3 style="font-size:14px">Unlock checklist</h3>
+          <ul class="checklist" id="wdCheck"></ul>
+
+          <label class="field">Payout method</label>
+          <select class="field" id="wdMethod">
+            <option value="TRC20">USDT · TRC20 (Tron)</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Crypto">Other crypto wallet</option>
+          </select>
+
+          <label class="field">Wallet / PayPal address</label>
+          <input class="field" id="wdAddress" placeholder="T... or email" autocomplete="off" />
+
+          <label class="field">Amount (USDT)</label>
+          <input class="field" id="wdAmount" type="number" min="10" step="0.01" placeholder="10.00" />
+
+          <button class="btn btn-primary btn-full btn-lg" id="wdBtn" style="margin-top:16px" onclick="submitWithdraw()">Request withdrawal</button>
+          <p class="lock-note" id="wdNote"></p>
+        </div>
+
+        <div class="glass" style="padding:16px">
+          <h3 style="font-size:14px">Recent requests</h3>
+          <div class="hist" id="wdHist"><p class="tiny">No withdrawals yet.</p></div>
+        </div>
+      </section>
+
+      <!-- LEADERS -->
+      <section class="view" data-view="leaders">
+        <div class="glass prize">
+          <h3>🏆 Weekly Prize Pool</h3>
+          <div class="pool">100 USDT</div>
+          <div class="splits">
+            <div class="split">🥇 1st<b>$50</b></div>
+            <div class="split">🥈 2nd<b>$30</b></div>
+            <div class="split">🥉 3rd<b>$20</b></div>
+          </div>
+          <div class="countdown" id="countdown">
+            <div class="cd"><b id="cdD">00</b><span>Days</span></div>
+            <div class="cd"><b id="cdH">00</b><span>Hrs</span></div>
+            <div class="cd"><b id="cdM">00</b><span>Min</span></div>
+            <div class="cd"><b id="cdS">00</b><span>Sec</span></div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="on" data-period="daily" onclick="setPeriod('daily')">Daily</button>
+          <button data-period="weekly" onclick="setPeriod('weekly')">Weekly</button>
+          <button data-period="all" onclick="setPeriod('all')">All-Time</button>
+        </div>
+        <div class="podium" id="podium"></div>
+        <div class="lb" id="lbList"></div>
+      </section>
+    </main>
+
+    <nav class="bottom">
+      <button class="on" data-nav="home" onclick="go('home')"><span class="ic">🏠</span><span class="lb">Home</span></button>
+      <button data-nav="earn" onclick="go('earn')"><span class="ic">💰</span><span class="lb">Earn</span></button>
+      <button data-nav="games" onclick="go('games')"><span class="ic">🎮</span><span class="lb">Games</span></button>
+      <button data-nav="friends" onclick="go('friends')"><span class="ic">👥</span><span class="lb">Friends</span></button>
+      <button data-nav="withdraw" onclick="go('withdraw')"><span class="ic">💳</span><span class="lb">Cash</span></button>
+      <button data-nav="leaders" onclick="go('leaders')"><span class="ic">🏆</span><span class="lb">Leaders</span></button>
+    </nav>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="glass loader-card">
+      <div class="spinner"></div>
+      <h3>Loading ad…</h3>
+      <p class="tiny">Please wait. Reward is credited after a successful view.</p>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CONFIG = {
+      adReward: 0.01,
+      dailyReward: 0.50,
+      referralReward: 1.00,
+      minWithdraw: 10,
+      minReferrals: 5,
+      botUsername: "HustleHub_Bot",
+      dailyTaskUrl: "https://omg10.com/4/11204770",
+      storageKey: "hustlehub_v1"
+    };
+
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor("#07070f");
+        tg.setBackgroundColor("#07070f");
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      } catch (e) {}
+    }
+
+    function haptic(type) {
+      try {
+        if (!tg || !tg.HapticFeedback) return;
+        if (type === "ok") tg.HapticFeedback.notificationOccurred("success");
+        else if (type === "err") tg.HapticFeedback.notificationOccurred("error");
+        else tg.HapticFeedback.impactOccurred("medium");
+      } catch (e) {}
+    }
+
+    function todayKey() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function money(n) {
+      return "$" + (Number(n) || 0).toFixed(2);
+    }
+
+    function getTelegramUser() {
+      const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+      if (u && u.id) return u;
+      const cached = localStorage.getItem("hh_identity");
+      if (cached) {
+        try { return JSON.parse(cached); } catch (e) {}
+      }
+      const guest = {
+        id: Math.floor(1e8 + Math.random() * 9e8),
+        first_name: "Hustler",
+        username: "guest",
+        photo_url: ""
+      };
+      localStorage.setItem("hh_identity", JSON.stringify(guest));
+      return guest;
+    }
+
+    function defaultState(userId) {
+      return {
+        userId: String(userId),
+        balance: 0,
+        totalEarned: 0,
+        adsWatched: 0,
+        adsEarned: 0,
+        referrals: 0,
+        referralEarnings: 0,
+        dailyClaimedOn: "",
+        dailyEarned: 0,
+        referredBy: "",
+        creditedRefs: [],
+        withdrawals: [],
+        gamesPlayed: 0,
+        gamesEarned: 0,
+        tapBest: 0,
+        wheelAt: 0,
+        scratchOn: "",
+        flipsDate: "",
+        flipsUsed: 0,
+        tapsDate: "",
+        tapsUsed: 0,
+        memDate: "",
+        memUsed: 0
+      };
+    }
+
+    const user = getTelegramUser();
+    let state = defaultState(user.id);
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(CONFIG.storageKey);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+      } catch (e) {}
+    }
+
+    function save() {
+      try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function startParam() {
+      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) return String(tg.initDataUnsafe.start_param);
+      const q = new URLSearchParams(location.search);
+      return q.get("tgWebAppStartParam") || q.get("startapp") || q.get("start") || "";
+    }
+
+    function handleReferralInbound() {
+      const p = startParam();
+      if (!p) return;
+      const m = String(p).match(/^ref[_-]?(\d+)$/i);
+      if (!m) return;
+      const refId = m[1];
+      if (refId === String(user.id)) return;
+      if (state.referredBy) return;
+      state.referredBy = refId;
+      save();
+    }
+
+    function referralLink() {
+      return "https://t.me/" + CONFIG.botUsername + "?start=ref_" + user.id;
+    }
+
+    function credit(amount, source) {
+      const a = Number(amount) || 0;
+      state.balance = Math.round((state.balance + a) * 100) / 100;
+      state.totalEarned = Math.round((state.totalEarned + a) * 100) / 100;
+      if (source === "ad") state.adsEarned = Math.round((state.adsEarned + a) * 100) / 100;
+      if (source === "daily") state.dailyEarned = Math.round((state.dailyEarned + a) * 100) / 100;
+      if (source === "ref") state.referralEarnings = Math.round((state.referralEarnings + a) * 100) / 100;
+      if (source === "game") state.gamesEarned = Math.round(((state.gamesEarned || 0) + a) * 100) / 100;
+      save();
+      render();
+    }
+
+    function toast(msg, ok) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      haptic(ok === false ? "err" : "ok");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () { el.classList.remove("show"); }, 2600);
+    }
+
+    function setOverlay(on) {
+      document.getElementById("overlay").classList.toggle("show", !!on);
+    }
+
+    function dailyDone() {
+      return state.dailyClaimedOn === todayKey();
+    }
+
+    function canWithdraw() {
+      return state.balance >= CONFIG.minWithdraw && state.referrals >= CONFIG.minReferrals;
+    }
+
+    function initials(name) {
+      const p = String(name || "H").trim().split(/\s+/);
+      return ((p[0] && p[0][0]) || "H").toUpperCase();
+    }
+
+    function renderHeader() {
+      const name = user.first_name || user.username || "Hustler";
+      document.getElementById("userName").textContent = name;
+      const av = document.getElementById("avatar");
+      if (user.photo_url) {
+        av.innerHTML = '<img alt="" src="' + user.photo_url + '">';
+      } else {
+        av.textContent = initials(name);
+      }
+    }
+
+    function renderBalance() {
+      const b = money(state.balance);
+      ["homeBalance", "wdBalance"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = b + " <span>USDT</span>";
+      });
+      document.getElementById("statAds").textContent = state.adsWatched;
+      document.getElementById("statRefs").textContent = state.referrals;
+      document.getElementById("statEarned").textContent = money(state.totalEarned);
+      document.getElementById("earnAds").textContent = state.adsWatched;
+      document.getElementById("earnAdUsd").textContent = money(state.adsEarned);
+      document.getElementById("earnDailyUsd").textContent = money(dailyDone() ? CONFIG.dailyReward : 0);
+      document.getElementById("refEarn").innerHTML = money(state.referralEarnings) + " <span>USDT</span>";
+      document.getElementById("refCount").textContent = state.referrals;
+      document.getElementById("refNeed").textContent = Math.max(0, CONFIG.minReferrals - state.referrals);
+      document.getElementById("refLink").value = referralLink();
+      const ge = document.getElementById("gameEarn");
+      if (ge) ge.innerHTML = money(state.gamesEarned || 0) + " <span>USDT</span>";
+      const gp = document.getElementById("gamePlays");
+      if (gp) gp.textContent = state.gamesPlayed || 0;
+      const gb = document.getElementById("gameBest");
+      if (gb) gb.textContent = state.tapBest || 0;
+      const gbal = document.getElementById("gameBal");
+      if (gbal) gbal.textContent = money(state.balance);
+      renderGameGrid();
+
+      const chips = [document.getElementById("homeDailyChip"), document.getElementById("earnDailyChip")];
+      chips.forEach(function (c) {
+        if (!c) return;
+        if (dailyDone()) {
+          c.textContent = "Claimed";
+          c.classList.add("done");
+        } else {
+          c.textContent = "+$0.50";
+          c.classList.remove("done");
+        }
+      });
+    }
+
+    function renderWithdraw() {
+      const balOk = state.balance >= CONFIG.minWithdraw;
+      const refOk = state.referrals >= CONFIG.minReferrals;
+      const items = [
+        { ok: balOk, t: "Balance at least " + money(CONFIG.minWithdraw) + " (you have " + money(state.balance) + ")" },
+        { ok: refOk, t: "Invite at least " + CONFIG.minReferrals + " friends (you have " + state.referrals + ")" }
+      ];
+      document.getElementById("wdCheck").innerHTML = items.map(function (i) {
+        return '<li class="' + (i.ok ? "ok" : "bad") + '"><span class="dot">' + (i.ok ? "✓" : "!") + '</span>' + i.t + "</li>";
+      }).join("");
+      const btn = document.getElementById("wdBtn");
+      btn.disabled = !canWithdraw();
+      document.getElementById("wdNote").textContent = canWithdraw()
+        ? "Requests are stored on this device. Connect a backend to process on-chain payouts."
+        : "Withdrawals stay locked until both checklist items are complete.";
+
+      const hist = state.withdrawals || [];
+      const box = document.getElementById("wdHist");
+      if (!hist.length) {
+        box.innerHTML = '<p class="tiny">No withdrawals yet.</p>';
+      } else {
+        box.innerHTML = hist.slice().reverse().map(function (w) {
+          return '<div class="hist-item"><div><b>' + money(w.amount) + '</b> · ' + w.method + '<div class="muted">' + w.address + '</div></div><div class="muted">' + w.date + '<br>' + w.status + '</div></div>';
+        }).join("");
+      }
+    }
+
+    const MOCK = [
+      ["Nova", 42.1], ["Kairo", 36.4], ["Lina", 29.8], ["Rex", 24.2], ["Mira", 21.7],
+      ["Juno", 18.9], ["Axel", 16.4], ["Sage", 14.1], ["Niko", 12.8], ["Vera", 11.3],
+      ["Omar", 9.7], ["Ivy", 8.6], ["Zed", 7.4], ["Anya", 6.9], ["Leo", 5.5],
+      ["Pia", 4.8], ["Ken", 3.9], ["Yara", 3.2], ["Bo", 2.6], ["Tess", 1.8]
+    ];
+
+    let period = "daily";
+
+    function setPeriod(p) {
+      period = p;
+      document.querySelectorAll(".tabs button").forEach(function (b) {
+        b.classList.toggle("on", b.getAttribute("data-period") === p);
+      });
+      renderLeaders();
+    }
+
+    function scaleForPeriod() {
+      if (period === "daily") return 0.08;
+      if (period === "weekly") return 0.45;
+      return 1;
+    }
+
+    function myScore() {
+      const s = Number(state.totalEarned) || 0;
+      if (period === "daily") return Math.round((state.adsEarned + (dailyDone() ? CONFIG.dailyReward : 0)) * 100) / 100;
+      if (period === "weekly") return Math.round(s * 0.55 * 100) / 100;
+      return s;
+    }
+
+    function renderLeaders() {
+      const sc = scaleForPeriod();
+      const meName = user.first_name || "You";
+      const rows = MOCK.map(function (m, i) {
+        return { name: m[0], amount: Math.round(m[1] * sc * 100) / 100, me: false, id: "m" + i };
+      });
+      rows.push({ name: meName + " (you)", amount: myScore(), me: true, id: "me" });
+      rows.sort(function (a, b) { return b.amount - a.amount; });
+      const top = rows.slice(0, 20);
+
+      const podium = document.getElementById("podium");
+      const medals = ["🥇", "🥈", "🥉"];
+      const cls = ["p1", "p2", "p3"];
+      podium.innerHTML = [0, 1, 2].map(function (i) {
+        const r = top[i] || { name: "—", amount: 0 };
+        return '<div class="pod ' + cls[i] + '"><div class="medal">' + medals[i] + '</div><div class="av">' + initials(r.name) + '</div><div class="nm">' + r.name + '</div><div class="am">' + money(r.amount) + '</div></div>';
+      }).join("");
+
+      document.getElementById("lbList").innerHTML = top.slice(3).map(function (r, idx) {
+        return '<div class="lb-row' + (r.me ? " me" : "") + '"><div class="rank">' + (idx + 4) + '</div><div class="lb-av">' + initials(r.name) + '</div><div class="lb-name">' + r.name + '</div><div class="lb-amt">' + money(r.amount) + "</div></div>";
+      }).join("");
+    }
+
+    function nextSunday() {
+      const n = new Date();
+      const day = n.getDay();
+      const add = day === 0 ? 7 : 7 - day;
+      const t = new Date(n.getFullYear(), n.getMonth(), n.getDate() + add, 23, 59, 59);
+      return t;
+    }
+
+    function tickCountdown() {
+      const end = nextSunday().getTime();
+      const now = Date.now();
+      let s = Math.max(0, Math.floor((end - now) / 1000));
+      const d = Math.floor(s / 86400); s -= d * 86400;
+      const h = Math.floor(s / 3600); s -= h * 3600;
+      const m = Math.floor(s / 60); s -= m * 60;
+      const pad = function (n) { return String(n).padStart(2, "0"); };
+      document.getElementById("cdD").textContent = pad(d);
+      document.getElementById("cdH").textContent = pad(h);
+      document.getElementById("cdM").textContent = pad(m);
+      document.getElementById("cdS").textContent = pad(s);
+    }
+
+    function render() {
+      renderHeader();
+      renderBalance();
+      renderWithdraw();
+      renderLeaders();
+    }
+
+    function go(id) {
+      haptic("tap");
+      document.querySelectorAll(".view").forEach(function (v) {
+        v.classList.toggle("active", v.getAttribute("data-view") === id);
+      });
+      document.querySelectorAll("nav.bottom button").forEach(function (b) {
+        b.classList.toggle("on", b.getAttribute("data-nav") === id);
+      });
+      document.getElementById("views").scrollTop = 0;
+      if (id === "leaders") renderLeaders();
+      if (id === "withdraw") renderWithdraw();
+    }
+
+    function watchAd() {
+      haptic("tap");
+      setOverlay(true);
+      const done = function (ok, msg) {
+        setOverlay(false);
+        if (ok) {
+          state.adsWatched += 1;
+          credit(CONFIG.adReward, "ad");
+          toast("+$0.01 USDT credited");
+        } else {
+          toast(msg || "Ad was not completed.", false);
+        }
+      };
+      const timer = setTimeout(function () {
+        if (typeof show_11643886 !== "function") {
+          done(false, "Ad network is still loading. Try again in a moment.");
+        }
+      }, 12000);
+      try {
+        if (typeof show_11643886 !== "function") {
+          clearTimeout(timer);
+          done(false, "Ad SDK not ready. Open this Mini App on Telegram with network access.");
+          return;
+        }
+        show_11643886().then(function () {
+          clearTimeout(timer);
+          done(true);
+        }).catch(function () {
+          clearTimeout(timer);
+          done(false, "Ad closed before the reward. Watch until the end.");
+        });
+      } catch (e) {
+        clearTimeout(timer);
+        done(false, "Could not start the ad.");
+      }
+    }
+
+    function claimDaily() {
+      haptic("tap");
+      window.open(CONFIG.dailyTaskUrl, "_blank", "noopener,noreferrer");
+      if (dailyDone()) {
+        toast("Daily hustle already claimed. Come back tomorrow.", false);
+        return;
+      }
+      state.dailyClaimedOn = todayKey();
+      credit(CONFIG.dailyReward, "daily");
+      toast("Daily Hustle complete · +$0.50 USDT");
+    }
+
+    function copyLink() {
+      const link = referralLink();
+      const ok = function () { toast("Referral link copied"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(ok).catch(function () { fallbackCopy(link); ok(); });
+      } else {
+        fallbackCopy(link); ok();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const i = document.getElementById("refLink");
+      i.value = text; i.select();
+      try { document.execCommand("copy"); } catch (e) {}
+    }
+
+    function shareLink() {
+      const link = referralLink();
+      const text = "Join me on Hustle Hub and earn USDT. Use my link: " + link;
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join me on Hustle Hub and earn USDT 💸"));
+        return;
+      }
+      window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text), "_blank");
+    }
+
+    const WHEEL_PRIZES = [0.01, 0.02, 0, 0.05, 0.01, 0.10, 0.02, 0.03];
+    const WHEEL_COOLDOWN = 3 * 60 * 60 * 1000;
+    const FLIP_DAILY = 12;
+    const TAP_DAILY = 8;
+    const MEM_DAILY = 5;
+    const MEM_ICONS = ["💎", "⚡", "🚀", "🎯", "🦄", "🔥"];
+
+    function fmtLeft(ms) {
+      if (ms <= 0) return "Ready";
+      const s = Math.ceil(ms / 1000);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      if (h) return h + "h " + m + "m";
+      if (m) return m + "m";
+      return (s % 60) + "s";
+    }
+
+    function dayCount(dateKey, usedKey, cap) {
+      if (state[dateKey] !== todayKey()) {
+        state[dateKey] = todayKey();
+        state[usedKey] = 0;
+      }
+      return { used: state[usedKey] || 0, left: Math.max(0, cap - (state[usedKey] || 0)) };
+    }
+
+    function bumpPlay() {
+      state.gamesPlayed = (state.gamesPlayed || 0) + 1;
+      save();
+    }
+
+    function payoutGame(amount, label) {
+      bumpPlay();
+      if (amount > 0) {
+        credit(amount, "game");
+        toast(label + " · +" + money(amount) + " USDT");
+      } else {
+        save();
+        render();
+        toast(label + " · no win this round", false);
+      }
+    }
+
+    function wheelLeft() {
+      return Math.max(0, (state.wheelAt || 0) + WHEEL_COOLDOWN - Date.now());
+    }
+
+    function gameMeta() {
+      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
+      const taps = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
+      const mem = dayCount("memDate", "memUsed", MEM_DAILY);
+      const w = wheelLeft();
+      const scratchReady = state.scratchOn !== todayKey();
+      return [
+        { id: "wheel", ico: "🎡", title: "Lucky Wheel", desc: "Spin for up to $0.10", chip: w ? fmtLeft(w) : "Ready", ready: w === 0 },
+        { id: "tap", ico: "👆", title: "Tap Rush", desc: "8 seconds of taps", chip: taps.left + " left", ready: taps.left > 0 },
+        { id: "flip", ico: "🪙", title: "Coin Flip", desc: "Call it · win $0.02", chip: flips.left + " left", ready: flips.left > 0 },
+        { id: "memory", ico: "🧠", title: "Memory Match", desc: "Pair all tiles · $0.06", chip: mem.left + " left", ready: mem.left > 0 },
+        { id: "scratch", ico: "🎫", title: "Scratch Card", desc: "Once a day · up to $0.20", chip: scratchReady ? "Ready" : "Claimed", ready: scratchReady }
+      ];
+    }
+
+    function renderGameGrid() {
+      const grid = document.getElementById("gameGrid");
+      if (!grid) return;
+      grid.innerHTML = gameMeta().map(function (g) {
+        return '<div class="glass game-card" onclick="openGame(\'' + g.id + '\')"><div class="gico">' + g.ico + '</div><h3>' + g.title + '</h3><p>' + g.desc + '</p><div class="gmeta"><span class="reward-chip' + (g.ready ? "" : " done") + '">' + g.chip + '</span></div></div>';
+      }).join("");
+    }
+
+    function closeGame() {
+      document.getElementById("playSheet").classList.remove("show");
+      renderGameGrid();
+    }
+
+    function openGame(id) {
+      haptic("tap");
+      const titles = { wheel: "Lucky Wheel", tap: "Tap Rush", flip: "Coin Flip", memory: "Memory Match", scratch: "Scratch Card" };
+      document.getElementById("playTitle").textContent = titles[id] || "Game";
+      document.getElementById("playSheet").classList.add("show");
+      if (id === "wheel") mountWheel();
+      if (id === "tap") mountTap();
+      if (id === "flip") mountFlip();
+      if (id === "memory") mountMemory();
+      if (id === "scratch") mountScratch();
+    }
+
+    function mountWheel() {
+      const body = document.getElementById("playBody");
+      const labels = WHEEL_PRIZES.map(function (p) { return p ? money(p) : "Miss"; });
+      body.innerHTML =
+        '<div class="legend">' + labels.map(function (l) { return "<span>" + l + "</span>"; }).join("") + "</div>" +
+        '<div class="wheel-wrap"><div class="wheel-pin"></div><div class="wheel" id="wheelDisk"></div><div class="wheel-hub">SPIN</div></div>' +
+        '<button class="btn btn-primary btn-full btn-lg" id="spinBtn" onclick="spinWheel()">Spin the wheel</button>' +
+        '<p class="tiny" id="wheelHint" style="text-align:center">One spin every 3 hours. Pointer at the top wins.</p>';
+      refreshWheelBtn();
+    }
+
+    function refreshWheelBtn() {
+      const btn = document.getElementById("spinBtn");
+      const hint = document.getElementById("wheelHint");
+      if (!btn) return;
+      const left = wheelLeft();
+      btn.disabled = left > 0 || !!spinWheel.busy;
+      if (hint && left > 0) hint.textContent = "Next spin in " + fmtLeft(left);
+    }
+
+    function spinWheel() {
+      if (spinWheel.busy) return;
+      if (wheelLeft() > 0) {
+        toast("Wheel is cooling down.", false);
+        return;
+      }
+      haptic("tap");
+      spinWheel.busy = true;
+      const btn = document.getElementById("spinBtn");
+      if (btn) btn.disabled = true;
+      const idx = Math.floor(Math.random() * WHEEL_PRIZES.length);
+      const extra = 5 * 360;
+      const target = extra + (360 - idx * 45 - 22.5);
+      const disk = document.getElementById("wheelDisk");
+      disk.style.transition = "none";
+      disk.style.transform = "rotate(" + (spinWheel.base || 0) + "deg)";
+      void disk.offsetWidth;
+      disk.style.transition = "transform 4.2s cubic-bezier(0.12, 0.72, 0.08, 1)";
+      const end = (spinWheel.base || 0) + target;
+      disk.style.transform = "rotate(" + end + "deg)";
+      spinWheel.base = end;
+      setTimeout(function () {
+        spinWheel.busy = false;
+        state.wheelAt = Date.now();
+        const prize = WHEEL_PRIZES[idx];
+        payoutGame(prize, prize ? "Wheel win" : "Wheel miss");
+        refreshWheelBtn();
+      }, 4300);
+    }
+
+    function mountTap() {
+      const taps = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
+      const body = document.getElementById("playBody");
+      body.innerHTML =
+        '<p class="tiny" style="text-align:center">Tap as fast as you can for 8 seconds. More taps = more USDT.</p>' +
+        '<div class="glass" style="padding:14px;text-align:center;margin-bottom:10px"><div class="n n-gold" id="tapClock">8.0s</div><div class="l muted">Time left · ' + taps.left + " plays today</div></div>" +
+        '<div class="tap-arena" id="tapArena"><div><div class="tap-n" id="tapN">0</div><div class="muted" id="tapHint">Tap to start</div></div></div>' +
+        '<p class="tiny" style="text-align:center">Reward = taps × $0.001 (max $0.05). Best: ' + (state.tapBest || 0) + "</p>";
+      const arena = document.getElementById("tapArena");
+      let started = false, ended = false, n = 0, t0 = 0, raf;
+      function frame() {
+        if (ended) return;
+        const left = Math.max(0, 8000 - (Date.now() - t0));
+        document.getElementById("tapClock").textContent = (left / 1000).toFixed(1) + "s";
+        if (left <= 0) {
+          ended = true;
+          const reward = Math.min(0.05, Math.round(n * 0.001 * 1000) / 1000);
+          if (n > (state.tapBest || 0)) state.tapBest = n;
+          state.tapsUsed = (state.tapsUsed || 0) + 1;
+          document.getElementById("tapHint").textContent = "Done";
+          payoutGame(reward, n + " taps");
+          return;
+        }
+        raf = requestAnimationFrame(frame);
+      }
+      arena.onclick = function () {
+        const info = dayCount("tapsDate", "tapsUsed", TAP_DAILY);
+        if (!started && info.left <= 0) { toast("Daily Tap Rush limit reached.", false); return; }
+        if (ended) return;
+        if (!started) {
+          started = true;
+          t0 = Date.now();
+          document.getElementById("tapHint").textContent = "GO!";
+          frame();
+        }
+        n += 1;
+        document.getElementById("tapN").textContent = n;
+        haptic("tap");
+      };
+    }
+
+    function mountFlip() {
+      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
+      document.getElementById("playBody").innerHTML =
+        '<p class="tiny" style="text-align:center">' + flips.left + " flips left today. Win $0.02 if you call it right.</p>" +
+        '<div class="coin" id="coinFace">?</div>' +
+        '<div class="choice-row">' +
+        '<div class="choice" onclick="doFlip(\'H\')">Heads</div>' +
+        '<div class="choice" onclick="doFlip(\'T\')">Tails</div>' +
+        "</div>";
+    }
+
+    function doFlip(call) {
+      const flips = dayCount("flipsDate", "flipsUsed", FLIP_DAILY);
+      if (flips.left <= 0) { toast("Daily coin flips used up.", false); return; }
+      if (doFlip.busy) return;
+      doFlip.busy = true;
+      const result = Math.random() < 0.5 ? "H" : "T";
+      const coin = document.getElementById("coinFace");
+      coin.classList.remove("flip");
+      void coin.offsetWidth;
+      coin.classList.add("flip");
+      setTimeout(function () {
+        coin.textContent = result === "H" ? "H" : "T";
+        state.flipsUsed = (state.flipsUsed || 0) + 1;
+        const win = call === result;
+        payoutGame(win ? 0.02 : 0, win ? "Correct call" : "Wrong call");
+        doFlip.busy = false;
+        const left = dayCount("flipsDate", "flipsUsed", FLIP_DAILY).left;
+        if (left <= 0) closeGame();
+      }, 900);
+    }
+
+    function mountMemory() {
+      const mem = dayCount("memDate", "memUsed", MEM_DAILY);
+      if (mem.left <= 0) {
+        document.getElementById("playBody").innerHTML = '<p class="tiny" style="text-align:center">Daily memory games used up. Come back tomorrow.</p>';
+        return;
+      }
+      const deck = MEM_ICONS.concat(MEM_ICONS).sort(function () { return Math.random() - 0.5; });
+      document.getElementById("playBody").innerHTML =
+        '<p class="tiny" style="text-align:center">Match every pair to earn $0.06. ' + mem.left + " plays left today.</p>" +
+        '<div class="mem-grid" id="memGrid"></div>' +
+        '<p class="tiny" style="text-align:center" id="memStatus">Moves: 0</p>';
+      const grid = document.getElementById("memGrid");
+      const tiles = deck.map(function (ico, i) {
+        const el = document.createElement("div");
+        el.className = "mem-tile off";
+        el.textContent = ico;
+        el.onclick = function () { flipMem(i); };
+        grid.appendChild(el);
+        return { ico: ico, el: el, open: false, match: false };
+      });
+      let lock = false, first = -1, moves = 0, matched = 0;
+      function flipMem(i) {
+        if (lock || tiles[i].open || tiles[i].match) return;
+        tiles[i].open = true;
+        tiles[i].el.classList.remove("off");
+        haptic("tap");
+        if (first < 0) { first = i; return; }
+        moves += 1;
+        document.getElementById("memStatus").textContent = "Moves: " + moves;
+        if (tiles[first].ico === tiles[i].ico) {
+          tiles[first].match = tiles[i].match = true;
+          tiles[first].el.classList.add("match");
+          tiles[i].el.classList.add("match");
+          first = -1;
+          matched += 1;
+          if (matched === MEM_ICONS.length) {
+            state.memUsed = (state.memUsed || 0) + 1;
+            payoutGame(0.06, "Memory complete");
+            setTimeout(closeGame, 700);
+          }
+        } else {
+          lock = true;
+          const a = first, b = i;
+          first = -1;
+          setTimeout(function () {
+            tiles[a].open = tiles[b].open = false;
+            tiles[a].el.classList.add("off");
+            tiles[b].el.classList.add("off");
+            lock = false;
+          }, 650);
+        }
+      }
+    }
+
+    function mountScratch() {
+      const ready = state.scratchOn !== todayKey();
+      document.getElementById("playBody").innerHTML =
+        '<p class="tiny" style="text-align:center">Tap the foil to reveal today\'s prize. One card per day.</p>' +
+        '<div class="scratch' + (ready ? "" : " revealed") + '" id="scratchCard">' +
+        '<div class="prize" id="scratchPrize">' + (ready ? "?" : "Come back tomorrow") + "</div>" +
+        '<div class="foil">SCRATCH</div></div>';
+      const card = document.getElementById("scratchCard");
+      if (!ready) return;
+      card.onclick = function () {
+        if (state.scratchOn === todayKey()) return;
+        const hidden = [0.01, 0.02, 0.05, 0.08, 0.12, 0.20, 0][Math.floor(Math.random() * 7)];
+        document.getElementById("scratchPrize").textContent = hidden ? money(hidden) : "Try again";
+        card.classList.add("revealed");
+        state.scratchOn = todayKey();
+        payoutGame(hidden, hidden ? "Scratch win" : "Scratch miss");
+      };
+    }
+
+    function submitWithdraw() {
+      if (!canWithdraw()) {
+        toast("Meet the $10 balance and 5-friends requirements first.", false);
+        return;
+      }
+      const method = document.getElementById("wdMethod").value;
+      const address = (document.getElementById("wdAddress").value || "").trim();
+      const amount = Number(document.getElementById("wdAmount").value);
+      if (address.length < 6) {
+        toast("Enter a valid wallet or PayPal address.", false);
+        return;
+      }
+      if (!amount || amount < CONFIG.minWithdraw) {
+        toast("Minimum withdrawal is $10.00 USDT.", false);
+        return;
+      }
+      if (amount > state.balance + 1e-9) {
+        toast("Amount exceeds your balance.", false);
+        return;
+      }
+      state.balance = Math.round((state.balance - amount) * 100) / 100;
+      state.withdrawals.push({
+        amount: amount,
+        method: method,
+        address: address,
+        date: todayKey(),
+        status: "Pending"
+      });
+      save();
+      document.getElementById("wdAddress").value = "";
+      document.getElementById("wdAmount").value = "";
+      render();
+      toast("Withdrawal requested · " + money(amount));
+    }
+
+    load();
+    if (!state.userId) state.userId = String(user.id);
+    handleReferralInbound();
+    save();
+    render();
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+  </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a30ce3826f4fee67',t:'MTc4NzY4NDk0MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
